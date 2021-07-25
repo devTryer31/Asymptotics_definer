@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Asymptotics_definer.ViewModels {
+
 	internal sealed class MainWindowViewModel : ViewModel{
 	
 	

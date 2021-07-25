@@ -4,9 +4,52 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Asymptotics_definer"
+        xmlns:oxy="http://oxyplot.org/wpf"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
-    <Grid>
+    <DockPanel>
+        <Menu DockPanel.Dock="Top" Background="LightGray">
+            <MenuItem Header="Файл">
+                <MenuItem Header="Импортировать данные"/>
+            </MenuItem>
+            <MenuItem Header="Помощь"/>
+        </Menu>
 
-    </Grid>
+        <StatusBar DockPanel.Dock="Bottom" Height="20">
+            <StatusBarItem>
+                <ProgressBar Width="150" Height="12"
+                             Margin="5 0 0 0"/>
+            </StatusBarItem>
+            <StatusBarItem>
+                <TextBlock >
+                    <TextBlock Text="Выбранный файл: "/>
+                </TextBlock>
+            </StatusBarItem>
+        </StatusBar>
+
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="150"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <GroupBox Grid.Column="0" Header="Входные данные">
+                <DataGrid>
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="N" Width="0.5*"/>
+                        <DataGridTextColumn Header="O(N)" Width="*"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </GroupBox>
+            <GroupBox Grid.Column="1" Header="График">
+                <oxy:Plot>
+                    <oxy:Plot.Axes>
+                        <oxy:LinearAxis Position="Left"/>
+                        <oxy:LinearAxis Position="Bottom"/>
+
+                    </oxy:Plot.Axes>
+                </oxy:Plot>
+            </GroupBox>
+        </Grid>
+
+    </DockPanel>
 </Window>

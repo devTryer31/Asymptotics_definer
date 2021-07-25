@@ -8,9 +8,8 @@ using static System.Math;
 
 namespace ConsoleTestApp {
 
-
-
 	static class AsymptoticsDefiner {
+
 		public struct TFunc {
 			public Func<double, double> Exec;
 			public string Str;
@@ -22,7 +21,7 @@ namespace ConsoleTestApp {
 		}
 
 		public static readonly TFunc[] Funcs = new TFunc[] {
-			new TFunc( x => Log2(Log2(x)), "log2(log2(N))"),
+			new TFunc(x => Log2(Log2(x)), "log2(log2(N))"),
 			new TFunc(x => Sqrt(Log2(x)/2), "sqrt(log2(N)/2)"),
 			new TFunc(x => Log2(x), "log2(N)"),
 			new TFunc(x => Sqrt(x), "sqrt(x)"),
