@@ -67,7 +67,7 @@
                         <DataGridTextColumn Header="a*Rn" Width="0.5*"
                                             Binding="{Binding Key}"/>
                         <DataGridTextColumn Header="a*Rn(N)" Width="*"
-                                            Binding="{Binding Value}"/>
+                                            Binding="{Binding Value, StringFormat=F2}"/>
                     </DataGrid.Columns>
                 </DataGrid>
             </GroupBox>

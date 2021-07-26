@@ -2,13 +2,10 @@
 using Asymptotics_definer.Models;
 using Asymptotics_definer.ViewModels.Base;
 using Microsoft.Win32;
-using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Input;
 
 namespace Asymptotics_definer.ViewModels {
@@ -26,22 +23,22 @@ namespace Asymptotics_definer.ViewModels {
 
 		#endregion
 
-		#region MainGraphPoints : ObservableCollection<KeyValuePair<int, double>>
+		#region MainGraphPoints : ObservableCollection<DataPoint<int, double>>
 
-		private ObservableCollection<KeyValuePair<uint, double>> _MainGraphPoints;
+		private ObservableCollection<DataPoint<uint, double>> _MainGraphPoints;
 
-		public ObservableCollection<KeyValuePair<uint, double>> MainGraphPoints {
+		public ObservableCollection<DataPoint<uint, double>> MainGraphPoints { //TODO: Try to chnge readonly struct to class or simple struct.
 			get => _MainGraphPoints;
 			set => Set(ref _MainGraphPoints, value);
 		}
 
 		#endregion
 
-		#region MainGraphComputedPoints : ObservableCollection<KeyValuePair<int, double>>
+		#region MainGraphComputedPoints : ObservableCollection<DataPoint<int, double>>
 
-		private ObservableCollection<KeyValuePair<uint, double>> _MainGraphComputedPoints;
+		private ObservableCollection<DataPoint<uint, double>> _MainGraphComputedPoints;
 
-		public ObservableCollection<KeyValuePair<uint, double>> MainGraphComputedPoints {
+		public ObservableCollection<DataPoint<uint, double>> MainGraphComputedPoints {
 			get => _MainGraphComputedPoints;
 			set => Set(ref _MainGraphComputedPoints, value);
 		}
@@ -81,19 +78,19 @@ namespace Asymptotics_definer.ViewModels {
 				var line = sr.ReadLine().Split(';', ',', ' ');
 				if (line.Length > 2) {
 					var line2 = sr.ReadLine().Split(';', ',', ' ').Select(double.Parse).ToList();
-					MainGraphPoints = new ObservableCollection<KeyValuePair<uint, double>>(
-						line.Select((x, i) => new KeyValuePair<uint, double>(uint.Parse(x), line2[i]))
+					MainGraphPoints = new ObservableCollection<DataPoint<uint, double>>(
+						line.Select((x, i) => new DataPoint<uint, double>(uint.Parse(x), line2[i]))
 						);
 					return;
 				}
 				else {
-					List<KeyValuePair<uint, double>> pointsList = new List<KeyValuePair<uint, double>>();
+					List<DataPoint<uint, double>> pointsList = new List<DataPoint<uint, double>>();
 					while (!sr.EndOfStream) {
-						pointsList.Add(new KeyValuePair<uint, double>(uint.Parse(line[0]), double.Parse(line[1])));
+						pointsList.Add(new DataPoint<uint, double>(uint.Parse(line[0]), double.Parse(line[1])));
 						line = sr.ReadLine().Split(';', ',', ' ');
 					}
-					pointsList.Add(new KeyValuePair<uint, double>(uint.Parse(line[0]), double.Parse(line[1])));
-					MainGraphPoints = new ObservableCollection<KeyValuePair<uint, double>>(
+					pointsList.Add(new DataPoint<uint, double>(uint.Parse(line[0]), double.Parse(line[1])));
+					MainGraphPoints = new ObservableCollection<DataPoint<uint, double>>(
 						pointsList);
 				}
 			}
@@ -112,12 +109,12 @@ namespace Asymptotics_definer.ViewModels {
 				new Dictionary<int, int>(
 					MainGraphPoints.Select(x => new KeyValuePair<int, int>((int)x.Key, (int)x.Value )))
 				);
-			var lst = new List<KeyValuePair<uint, double>>(MainGraphPoints.Count);
+			var lst = new List<DataPoint<uint, double>>(MainGraphPoints.Count);
 			foreach (var p in MainGraphPoints) {
-				lst.Add(new KeyValuePair<uint, double>(p.Key, res.a * res.FuncItem.Exec(p.Key)));
+				lst.Add(new DataPoint<uint, double>(p.Key, res.a * res.FuncItem.Exec(p.Key)));
 			}
-			MainGraphComputedPoints = new ObservableCollection<KeyValuePair<uint, double>>(lst);
-			ResultPlotTitle = "Rn(N) = "+res.a.ToString() + res.FuncItem.Str;
+			MainGraphComputedPoints = new ObservableCollection<DataPoint<uint, double>>(lst);
+			ResultPlotTitle = "Rn(N) = " + res.a.ToString("F4") + res.FuncItem.Str;
 		}
 
 		#endregion
