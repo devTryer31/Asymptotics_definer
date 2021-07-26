@@ -8,7 +8,7 @@
         xmlns:cmd="clr-namespace:Asymptotics_definer.Infrastructure.Commands"
         xmlns:oxy="http://oxyplot.org/wpf"
         mc:Ignorable="d"
-        Title="Asymptotics definer" Height="450" Width="800">
+        Title="Asymptotics definer" Height="450" Width="950">
     <Window.DataContext>
         <vm:MainWindowViewModel/>
     </Window.DataContext>
@@ -18,6 +18,7 @@
         <Menu DockPanel.Dock="Top" Background="LightGray">
             <MenuItem Header="Файл">
                 <MenuItem Header="Импортировать данные" Command="{Binding OpenFileCommand}"/>
+                <MenuItem Header="Рассчитать" Command="{Binding ComputeCommand}"/>
             </MenuItem>
             <MenuItem Header="Помощь"/>
         </Menu>
@@ -37,28 +38,62 @@
 
         <Grid>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="150"/>
+                <ColumnDefinition Width="22"/>
+                <ColumnDefinition Width="128"/>
+                <ColumnDefinition Width="150" MinWidth="120"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
-            <GroupBox Grid.Column="0" Header="Входные данные">
-                <DataGrid>
+
+            <GridSplitter Grid.Column="1" Width="3px"
+                          HorizontalAlignment="Left" Margin="125,0,0,0"/>
+            <GridSplitter Grid.Column="2" Width="3px"
+                          HorizontalAlignment="Left" Margin="147,0,0,0"/>
+
+            <GroupBox Grid.Column="0" Header="Входные данные" Grid.ColumnSpan="2">
+                <DataGrid ItemsSource="{Binding MainGraphPoints}" 
+                          AutoGenerateColumns="False">
                     <DataGrid.Columns>
-                        <DataGridTextColumn Header="N" Width="0.5*"/>
-                        <DataGridTextColumn Header="O(N)" Width="*"/>
+                        <DataGridTextColumn Header="N" Width="0.5*"
+                                            Binding="{Binding Key}"/>
+                        <DataGridTextColumn Header="O(N)" Width="*"
+                                            Binding="{Binding Value}"/>
                     </DataGrid.Columns>
                 </DataGrid>
             </GroupBox>
-            <GroupBox Grid.Column="1" Header="График">
-                <oxy:Plot>
+            <GroupBox Grid.Column="2" Header="Результат">
+                <DataGrid ItemsSource="{Binding MainGraphComputedPoints}"
+                          AutoGenerateColumns="False">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="a*Rn" Width="0.5*"
+                                            Binding="{Binding Key}"/>
+                        <DataGridTextColumn Header="a*Rn(N)" Width="*"
+                                            Binding="{Binding Value}"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </GroupBox>
+            <GroupBox Grid.Column="3" Header="График">
+                <oxy:Plot LegendPosition="LeftTop">
                     <oxy:Plot.Axes>
-                        <oxy:LinearAxis Position="Left"/>
-                        <oxy:LinearAxis Position="Bottom"/>
-
+                        <oxy:LinearAxis Position="Left"
+                                    MajorGridlineStyle="Automatic"
+                                    MajorGridlineColor="LightGray"/>
+                        <oxy:LinearAxis Position="Bottom"
+                                    MajorGridlineStyle="Automatic"
+                                    MajorGridlineColor="LightGray"/>
                     </oxy:Plot.Axes>
+                    
                     <oxy:LineSeries ItemsSource="{Binding MainGraphPoints}"
                                     DataFieldX="Key"
                                     DataFieldY="Value"
-                                    Color="Aqua"/>
+                                    Color="Aqua"
+                                    Title="O(N)"/>
+                    <oxy:LineSeries ItemsSource="{Binding MainGraphComputedPoints}"
+                                    DataFieldX="Key"
+                                    DataFieldY="Value"
+                                    Color="BlueViolet"
+                                    Title="{Binding ResultPlotTitle}"/>
+                    
+                    
                 </oxy:Plot>
             </GroupBox>
         </Grid>
