@@ -4,15 +4,24 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Asymptotics_definer"
+        xmlns:vm="clr-namespace:Asymptotics_definer.ViewModels"
+        xmlns:cmd="clr-namespace:Asymptotics_definer.Infrastructure.Commands"
         xmlns:oxy="http://oxyplot.org/wpf"
         mc:Ignorable="d"
         Title="Asymptotics definer" Height="450" Width="800">
-    
+    <Window.DataContext>
+        <vm:MainWindowViewModel/>
+    </Window.DataContext>
+
     <DockPanel>
-        
+
         <Menu DockPanel.Dock="Top" Background="LightGray">
             <MenuItem Header="Файл">
-                <MenuItem Header="Импортировать данные"/>
+                <MenuItem Header="Импортировать данные" CommandParameter="{Binding ImportedFile}">
+                    <MenuItem.Command>
+                        <cmd:ImportFileCommand/>
+                    </MenuItem.Command>
+                </MenuItem>
             </MenuItem>
             <MenuItem Header="Помощь"/>
         </Menu>
@@ -23,8 +32,9 @@
                              Margin="5 0 0 0"/>
             </StatusBarItem>
             <StatusBarItem>
-                <TextBlock >
-                    <TextBlock Text="Выбранный файл: "/>
+                <TextBlock Text="Выбранный файл: ">
+                    <TextBlock Text="{Binding ImportedFile.Name, UpdateSourceTrigger=PropertyChanged
+                        , FallbackValue='Не выбран'}"/>
                 </TextBlock>
             </StatusBarItem>
         </StatusBar>
