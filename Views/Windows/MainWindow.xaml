@@ -6,8 +6,10 @@
         xmlns:local="clr-namespace:Asymptotics_definer"
         xmlns:oxy="http://oxyplot.org/wpf"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="Asymptotics definer" Height="450" Width="800">
+    
     <DockPanel>
+        
         <Menu DockPanel.Dock="Top" Background="LightGray">
             <MenuItem Header="Файл">
                 <MenuItem Header="Импортировать данные"/>
