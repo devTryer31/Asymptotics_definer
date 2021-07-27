@@ -17,10 +17,13 @@
 
         <Menu DockPanel.Dock="Top" Background="LightGray">
             <MenuItem Header="Файл">
-                <MenuItem Header="Импортировать данные" Command="{Binding OpenFileCommand}"/>
+                <MenuItem Header="Импортировать данные" Command="{Binding OpenFileCommand}"
+                          />
                 <MenuItem Header="Рассчитать" Command="{Binding ComputeCommand}"/>
             </MenuItem>
-            <MenuItem Header="Помощь"/>
+            <MenuItem Header="Помощь">
+                <MenuItem Header="О работе алгоритма" Command="{Binding OpenGoogleFileCommand}"/>
+            </MenuItem>
         </Menu>
 
         <StatusBar DockPanel.Dock="Bottom" Height="20">

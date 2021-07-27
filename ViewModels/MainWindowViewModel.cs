@@ -4,6 +4,7 @@ using Asymptotics_definer.ViewModels.Base;
 using Microsoft.Win32;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Windows.Input;
@@ -27,7 +28,7 @@ namespace Asymptotics_definer.ViewModels {
 
 		private ObservableCollection<DataPoint<uint, double>> _MainGraphPoints;
 
-		public ObservableCollection<DataPoint<uint, double>> MainGraphPoints { //TODO: Try to chnge readonly struct to class or simple struct.
+		public ObservableCollection<DataPoint<uint, double>> MainGraphPoints {
 			get => _MainGraphPoints;
 			set => Set(ref _MainGraphPoints, value);
 		}
@@ -114,7 +115,20 @@ namespace Asymptotics_definer.ViewModels {
 				lst.Add(new DataPoint<uint, double>(p.Key, res.a * res.FuncItem.Exec(p.Key)));
 			}
 			MainGraphComputedPoints = new ObservableCollection<DataPoint<uint, double>>(lst);
-			ResultPlotTitle = "Rn(N) = " + res.a.ToString("F4") + res.FuncItem.Str;
+			ResultPlotTitle = "Rn(N)=" + res.a.ToString("F4") + res.FuncItem.Str;
+		}
+
+		#endregion
+
+		#region OpenGoogleFileCommand
+
+		public ICommand OpenGoogleFileCommand { get; }
+
+		private bool CanOpenGoogleFileCommandExecute(object param) => true;
+
+		private void OnOpenGoogleFileCommandExecuted(object param) {
+			const string url = @"https://drive.google.com/file/d/1Y64sHZNHi26ovRIBC1eR7SWhY_bYHFnC/view?usp=sharing";
+			Process.Start(new ProcessStartInfo("cmd", $"/c start {url}") { CreateNoWindow = true });
 		}
 
 		#endregion
@@ -129,6 +143,8 @@ namespace Asymptotics_definer.ViewModels {
 			OpenFileCommand = new LambdaCommand(OnOpenFileCommandExecuted, CanOpenFileCommandExecute);
 
 			ComputeCommand = new LambdaCommand(OnComputeCommandExecuted, CanComputeCommandExecute);
+
+			OpenGoogleFileCommand = new LambdaCommand(OnOpenGoogleFileCommandExecuted, CanOpenGoogleFileCommandExecute);
 
 			#endregion
 
