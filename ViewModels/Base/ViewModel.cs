@@ -13,7 +13,7 @@ namespace Asymptotics_definer.ViewModels.Base {
 
 		protected virtual bool Set<T>(ref T source, T value, [CallerMemberName] string propertyName = null) {
 			if (object.Equals(source, value))
-				return true;
+				return false;
 
 			source = value;
 			OnPropertyChanged(propertyName);

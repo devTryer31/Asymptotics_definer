@@ -2,6 +2,7 @@
 using Asymptotics_definer.Models;
 using Asymptotics_definer.ViewModels.Base;
 using Microsoft.Win32;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
@@ -24,24 +25,18 @@ namespace Asymptotics_definer.ViewModels {
 
 		#endregion
 
-		#region MainGraphPoints : ObservableCollection<DataPoint<int, double>>
+		#region GraphPoints : ObservableCollection<DataPoint<uint, double, double>>
 
-		private ObservableCollection<DataPoint<uint, double>> _MainGraphPoints;
+		private ObservableCollection<DataPoint<uint, double, double>> _GraphPoints =
+			new ObservableCollection<DataPoint<uint, double, double>>() {
+				new DataPoint<uint, double, double>(1000,2,3),
+				new DataPoint<uint, double, double>(315,4,542),
+				new DataPoint<uint, double, double>(2,30,4000)
+			};
 
-		public ObservableCollection<DataPoint<uint, double>> MainGraphPoints {
-			get => _MainGraphPoints;
-			set => Set(ref _MainGraphPoints, value);
-		}
-
-		#endregion
-
-		#region MainGraphComputedPoints : ObservableCollection<DataPoint<int, double>>
-
-		private ObservableCollection<DataPoint<uint, double>> _MainGraphComputedPoints;
-
-		public ObservableCollection<DataPoint<uint, double>> MainGraphComputedPoints {
-			get => _MainGraphComputedPoints;
-			set => Set(ref _MainGraphComputedPoints, value);
+		public ObservableCollection<DataPoint<uint, double, double>> GraphPoints {
+			get => _GraphPoints;
+			set => Set(ref _GraphPoints, value);
 		}
 
 		#endregion
@@ -79,19 +74,18 @@ namespace Asymptotics_definer.ViewModels {
 				var line = sr.ReadLine().Split(';', ',', ' ');
 				if (line.Length > 2) {
 					var line2 = sr.ReadLine().Split(';', ',', ' ').Select(double.Parse).ToList();
-					MainGraphPoints = new ObservableCollection<DataPoint<uint, double>>(
-						line.Select((x, i) => new DataPoint<uint, double>(uint.Parse(x), line2[i]))
+					GraphPoints = new ObservableCollection<DataPoint<uint, double, double>>(
+						line.Select((x, i) => new DataPoint<uint, double, double>(uint.Parse(x), line2[i], default(double)))
 						);
-					return;
 				}
 				else {
-					List<DataPoint<uint, double>> pointsList = new List<DataPoint<uint, double>>();
+					var pointsList = new List<DataPoint<uint, double, double>>();
 					while (!sr.EndOfStream) {
-						pointsList.Add(new DataPoint<uint, double>(uint.Parse(line[0]), double.Parse(line[1])));
+						pointsList.Add(new DataPoint<uint, double, double>(uint.Parse(line[0]), double.Parse(line[1]), default(double)));
 						line = sr.ReadLine().Split(';', ',', ' ');
 					}
-					pointsList.Add(new DataPoint<uint, double>(uint.Parse(line[0]), double.Parse(line[1])));
-					MainGraphPoints = new ObservableCollection<DataPoint<uint, double>>(
+					pointsList.Add(new DataPoint<uint, double, double>(uint.Parse(line[0]), double.Parse(line[1]), default(double)));
+					GraphPoints = new ObservableCollection<DataPoint<uint, double, double>>(
 						pointsList);
 				}
 			}
@@ -103,18 +97,23 @@ namespace Asymptotics_definer.ViewModels {
 
 		public ICommand ComputeCommand { get; }
 
-		private bool CanComputeCommandExecute(object param) => MainGraphPoints != null && MainGraphPoints.Count != 0;
+		private bool CanComputeCommandExecute(object param) => GraphPoints != null && GraphPoints.Count != 0;
 
 		private void OnComputeCommandExecuted(object param) {
 			var res = AsymptoticsDefiner.Evaluate(
 				new Dictionary<int, int>(
-					MainGraphPoints.Select(x => new KeyValuePair<int, int>((int)x.Key, (int)x.Value )))
+					GraphPoints.Select(x => new KeyValuePair<int, int>((int)x.Key, (int)x.Value1)))
 				);
-			var lst = new List<DataPoint<uint, double>>(MainGraphPoints.Count);
-			foreach (var p in MainGraphPoints) {
-				lst.Add(new DataPoint<uint, double>(p.Key, res.a * res.FuncItem.Exec(p.Key)));
-			}
-			MainGraphComputedPoints = new ObservableCollection<DataPoint<uint, double>>(lst);
+			foreach (var p in GraphPoints)
+				p.Value2 = Math.Round(res.a * res.FuncItem.Exec(p.Key));
+			// ERROR: It does't work. Why?? - + +. Bad practice.
+			// - OnPropertyChanged(nameof(GraphPoints)); 
+			// + GraphPoints = new ObservableCollection<DataPoint<uint, double, double>>( GraphPoints);
+			// + //
+			var tmp = GraphPoints;
+			GraphPoints = null;
+			GraphPoints = tmp;
+
 			ResultPlotTitle = "Rn(N)=" + res.a.ToString("F4") + res.FuncItem.Str;
 		}
 
