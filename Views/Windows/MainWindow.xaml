@@ -65,7 +65,7 @@
             </GroupBox>
             <GroupBox Grid.Column="2" Header="Результат">
                 <DataGrid ItemsSource="{Binding MainGraphComputedPoints}"
-                          AutoGenerateColumns="False">
+                          AutoGenerateColumns="False" Background="Beige">
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="a*Rn" Width="0.5*"
                                             Binding="{Binding Key}"/>
