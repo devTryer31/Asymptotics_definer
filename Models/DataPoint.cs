@@ -13,5 +13,11 @@
 			Value2 = val2;
 		}
 
+		public DataPoint() {
+			Key = default(TKey);
+			Value1 = default(TVal1);
+			Value2 = default(TVal2);
+		}
+
 	}
 }

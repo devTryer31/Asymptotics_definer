@@ -27,14 +27,15 @@ namespace Asymptotics_definer.ViewModels {
 
 		#region GraphPoints : ObservableCollection<DataPoint<uint, double, double>>
 
-		private ObservableCollection<DataPoint<uint, double, double>> _GraphPoints =
-			new ObservableCollection<DataPoint<uint, double, double>>() {
-				new DataPoint<uint, double, double>(1000,2,3),
-				new DataPoint<uint, double, double>(315,4,542),
-				new DataPoint<uint, double, double>(2,30,4000)
+		private IEnumerable<DataPoint<uint?, double?, double?>> _GraphPoints =
+			new ObservableCollection<DataPoint<uint?, double?, double?>>() {
+				new DataPoint<uint?, double?, double?>(),
+				new DataPoint<uint?, double?, double?>(2,30,4000),
+				new DataPoint<uint?, double?, double?>(315,4,542),
+				new DataPoint<uint?, double?, double?>(1000,2,3)
 			};
 
-		public ObservableCollection<DataPoint<uint, double, double>> GraphPoints {
+		public IEnumerable<DataPoint<uint?, double?, double?>> GraphPoints {
 			get => _GraphPoints;
 			set => Set(ref _GraphPoints, value);
 		}
@@ -74,18 +75,18 @@ namespace Asymptotics_definer.ViewModels {
 				var line = sr.ReadLine().Split(';', ',', ' ');
 				if (line.Length > 2) {
 					var line2 = sr.ReadLine().Split(';', ',', ' ').Select(double.Parse).ToList();
-					GraphPoints = new ObservableCollection<DataPoint<uint, double, double>>(
-						line.Select((x, i) => new DataPoint<uint, double, double>(uint.Parse(x), line2[i], default(double)))
+					GraphPoints = new ObservableCollection<DataPoint<uint?, double?, double?>>(
+						line.Select((x, i) => new DataPoint<uint?, double?, double?>(uint.Parse(x), line2[i], default(double)))
 						);
 				}
 				else {
-					var pointsList = new List<DataPoint<uint, double, double>>();
+					var pointsList = new List<DataPoint<uint?, double?, double?>>();
 					while (!sr.EndOfStream) {
-						pointsList.Add(new DataPoint<uint, double, double>(uint.Parse(line[0]), double.Parse(line[1]), default(double)));
+						pointsList.Add(new DataPoint<uint?, double?, double?>(uint.Parse(line[0]), double.Parse(line[1]), default(double)));
 						line = sr.ReadLine().Split(';', ',', ' ');
 					}
-					pointsList.Add(new DataPoint<uint, double, double>(uint.Parse(line[0]), double.Parse(line[1]), default(double)));
-					GraphPoints = new ObservableCollection<DataPoint<uint, double, double>>(
+					pointsList.Add(new DataPoint<uint?, double?, double?>(uint.Parse(line[0]), double.Parse(line[1]), default(double)));
+					GraphPoints = new ObservableCollection<DataPoint<uint?, double?, double?>>(
 						pointsList);
 				}
 			}
@@ -97,7 +98,7 @@ namespace Asymptotics_definer.ViewModels {
 
 		public ICommand ComputeCommand { get; }
 
-		private bool CanComputeCommandExecute(object param) => GraphPoints != null && GraphPoints.Count != 0;
+		private bool CanComputeCommandExecute(object param) => GraphPoints != null && GraphPoints.Count() != 0;
 
 		private void OnComputeCommandExecuted(object param) {
 			var res = AsymptoticsDefiner.Evaluate(
@@ -105,7 +106,7 @@ namespace Asymptotics_definer.ViewModels {
 					GraphPoints.Select(x => new KeyValuePair<int, int>((int)x.Key, (int)x.Value1)))
 				);
 			foreach (var p in GraphPoints)
-				p.Value2 = Math.Round(res.a * res.FuncItem.Exec(p.Key));
+				p.Value2 = Math.Round(res.a * res.FuncItem.Exec(p.Key.Value));
 			// ERROR: It does't work. Why?? - + +. Bad practice.
 			// - OnPropertyChanged(nameof(GraphPoints)); 
 			// + GraphPoints = new ObservableCollection<DataPoint<uint, double, double>>( GraphPoints);
