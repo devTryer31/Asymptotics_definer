@@ -1,6 +1,9 @@
-﻿namespace Asymptotics_definer.Models {
+﻿using System;
 
-	internal class DataPoint<TKey, TVal1, TVal2> {
+namespace Asymptotics_definer.Models {
+
+	//TODO: Add IComparable IEquatable emplementation.
+	internal class DataPoint<TKey, TVal1, TVal2> : IComparable {
 
 		public TKey Key { get; set; }
 		public TVal1 Value1 { get; set; }
@@ -19,5 +22,8 @@
 			Value2 = default(TVal2);
 		}
 
+		public int CompareTo(object obj) {
+			throw new NotImplementedException();
+		}
 	}
 }

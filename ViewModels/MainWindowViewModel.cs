@@ -25,17 +25,24 @@ namespace Asymptotics_definer.ViewModels {
 
 		#endregion
 
-		#region GraphPoints : ObservableCollection<DataPoint<uint, double, double>>
+		private DataPoint<uint, uint, uint> _toAddDataPoint = new DataPoint<uint, uint, uint>();
 
-		private IEnumerable<DataPoint<uint?, double?, double?>> _GraphPoints =
-			new ObservableCollection<DataPoint<uint?, double?, double?>>() {
-				new DataPoint<uint?, double?, double?>(),
-				new DataPoint<uint?, double?, double?>(2,30,4000),
-				new DataPoint<uint?, double?, double?>(315,4,542),
-				new DataPoint<uint?, double?, double?>(1000,2,3)
+		public DataPoint<uint, uint, uint> ToAddDataPoint {
+			get => _toAddDataPoint;
+			set => Set(ref _toAddDataPoint, value);
+		}
+
+
+		#region GraphPoints : ObservableCollection<DataPoint<uint, uint, uint>>
+
+		private ObservableCollection<DataPoint<uint, uint, uint>> _GraphPoints =
+			new ObservableCollection<DataPoint<uint, uint, uint>>() {
+				//new DataPoint<uint, uint, uint>(2,30,4000),
+				//new DataPoint<uint, uint, uint>(315,4,542),
+				//new DataPoint<uint, uint, uint>(1000,2,3)
 			};
 
-		public IEnumerable<DataPoint<uint?, double?, double?>> GraphPoints {
+		public ObservableCollection<DataPoint<uint, uint, uint>> GraphPoints {
 			get => _GraphPoints;
 			set => Set(ref _GraphPoints, value);
 		}
@@ -74,19 +81,19 @@ namespace Asymptotics_definer.ViewModels {
 				using var sr = new StreamReader(ImportedFile.FullName);
 				var line = sr.ReadLine().Split(';', ',', ' ');
 				if (line.Length > 2) {
-					var line2 = sr.ReadLine().Split(';', ',', ' ').Select(double.Parse).ToList();
-					GraphPoints = new ObservableCollection<DataPoint<uint?, double?, double?>>(
-						line.Select((x, i) => new DataPoint<uint?, double?, double?>(uint.Parse(x), line2[i], default(double)))
+					var line2 = sr.ReadLine().Split(';', ',', ' ').Select(uint.Parse).ToList();
+					GraphPoints = new ObservableCollection<DataPoint<uint, uint, uint>>(
+						line.Select((x, i) => new DataPoint<uint, uint, uint>(uint.Parse(x), line2[i], default(uint)))
 						);
 				}
 				else {
-					var pointsList = new List<DataPoint<uint?, double?, double?>>();
+					var pointsList = new List<DataPoint<uint, uint, uint>>();
 					while (!sr.EndOfStream) {
-						pointsList.Add(new DataPoint<uint?, double?, double?>(uint.Parse(line[0]), double.Parse(line[1]), default(double)));
+						pointsList.Add(new DataPoint<uint, uint, uint>(uint.Parse(line[0]), uint.Parse(line[1]), default(uint)));
 						line = sr.ReadLine().Split(';', ',', ' ');
 					}
-					pointsList.Add(new DataPoint<uint?, double?, double?>(uint.Parse(line[0]), double.Parse(line[1]), default(double)));
-					GraphPoints = new ObservableCollection<DataPoint<uint?, double?, double?>>(
+					pointsList.Add(new DataPoint<uint, uint, uint>(uint.Parse(line[0]), uint.Parse(line[1]), default(uint)));
+					GraphPoints = new ObservableCollection<DataPoint<uint, uint, uint>>(
 						pointsList);
 				}
 			}
@@ -100,16 +107,16 @@ namespace Asymptotics_definer.ViewModels {
 
 		private bool CanComputeCommandExecute(object param) => GraphPoints != null && GraphPoints.Count() != 0;
 
-		private void OnComputeCommandExecuted(object param) {
+		private void OnComputeCommandExecuted(object param = null) {
 			var res = AsymptoticsDefiner.Evaluate(
 				new Dictionary<int, int>(
 					GraphPoints.Select(x => new KeyValuePair<int, int>((int)x.Key, (int)x.Value1)))
 				);
 			foreach (var p in GraphPoints)
-				p.Value2 = Math.Round(res.a * res.FuncItem.Exec(p.Key.Value));
-			// ERROR: It does't work. Why?? - + +. Bad practice.
+				p.Value2 = (uint)Math.Round(res.a * res.FuncItem.Exec(p.Key));
+			// ERROR: It does't work. Why? - + +. Bad practice.
 			// - OnPropertyChanged(nameof(GraphPoints)); 
-			// + GraphPoints = new ObservableCollection<DataPoint<uint, double, double>>( GraphPoints);
+			// + GraphPoints = new ObservableCollection<DataPoint<uint, uint, uint>>( GraphPoints);
 			// + //
 			var tmp = GraphPoints;
 			GraphPoints = null;
@@ -127,8 +134,23 @@ namespace Asymptotics_definer.ViewModels {
 		private bool CanOpenGoogleFileCommandExecute(object param) => true;
 
 		private void OnOpenGoogleFileCommandExecuted(object param) {
-			const string url = @"https://drive.google.com/file/d/1Y64sHZNHi26ovRIBC1eR7SWhY_bYHFnC/view?usp=sharing";
+			const string url = @"https://drive.google.com/file/d/1Y64sHZNHi26ovRIBC1eR7SWhY_bYHFnC/viewusp=sharing";
 			Process.Start(new ProcessStartInfo("cmd", $"/c start {url}") { CreateNoWindow = true });
+		}
+
+		#endregion
+
+		#region AddOneDataPointCommand
+
+		public ICommand AddOneDataPointCommand { get; }
+
+		private bool CanAddOneDataPointCommandExecute(object param)
+			=> ToAddDataPoint != null && !GraphPoints.Contains(ToAddDataPoint) && ToAddDataPoint.Key != 0 && ToAddDataPoint.Value1 != 0;
+
+		private void OnAddOneDataPointCommandExecuted(object param) {
+			GraphPoints.Add(ToAddDataPoint);
+			//TODO: Add sorting.
+			OnComputeCommandExecuted();
 		}
 
 		#endregion
@@ -145,6 +167,8 @@ namespace Asymptotics_definer.ViewModels {
 			ComputeCommand = new LambdaCommand(OnComputeCommandExecuted, CanComputeCommandExecute);
 
 			OpenGoogleFileCommand = new LambdaCommand(OnOpenGoogleFileCommandExecuted, CanOpenGoogleFileCommandExecute);
+
+			AddOneDataPointCommand = new LambdaCommand(OnAddOneDataPointCommandExecuted, CanAddOneDataPointCommandExecute);
 
 			#endregion
 

@@ -4,10 +4,13 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Asymptotics_definer"
+        xmlns:sys="clr-namespace:System;assembly=System.Core"
         xmlns:vm="clr-namespace:Asymptotics_definer.ViewModels"
         xmlns:cmd="clr-namespace:Asymptotics_definer.Infrastructure.Commands"
         xmlns:oxy="http://oxyplot.org/wpf"
+        xmlns:fa="http://schemas.fontawesome.com/icons/"
         xmlns:mods="clr-namespace:Asymptotics_definer.Models"
+        xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
         mc:Ignorable="d"
         Title="Asymptotics definer" Height="450" Width="950">
     <Window.DataContext>
@@ -49,14 +52,6 @@
             </Grid.RowDefinitions>
 
             <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="5 2">
-                <!--<Button RenderTransformOrigin="0.5 0.5"
-                        Content="Добавить">
-                    <Button.LayoutTransform>
-                        <RotateTransform Angle="-90"/>
-                    </Button.LayoutTransform>
-                    
-                </Button>-->
-
                 <UniformGrid VerticalAlignment="Stretch" Rows="3" Columns="1">
                     <Border BorderThickness="0 0 0 1" BorderBrush="DarkGray" Margin="0 0 0 -0.3">
                         <TextBlock Text="N" FontSize="15"/>
@@ -68,6 +63,39 @@
                         <TextBlock Text="Rn(N)" FontSize="15" />
                     </Border>
                 </UniformGrid>
+
+                <Grid Width="44">
+                    <Grid.RowDefinitions>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                    </Grid.RowDefinitions>
+
+                    <xctk:WatermarkTextBox Grid.Row="0" BorderThickness="1 1 0 1" Watermark="Ni" FontSize="14"
+                             Padding="0 0 0 1" Text="{Binding ToAddDataPoint.Key, Mode=OneWayToSource}"/>
+
+                    <xctk:WatermarkTextBox Grid.Row="1" BorderThickness="1 0 0 1" Watermark="O(Ni)" FontSize="14"
+                             Padding="0 0 0 1" Text="{Binding ToAddDataPoint.Value1, Mode=OneWayToSource}"/>
+
+                    <xctk:WatermarkTextBox x:Name="tb1" Grid.Row="2" BorderThickness="1 0 0 1" Watermark="Rn(Ni)" FontSize="14"
+                             Padding="0 0 0 1" Text="{Binding ToAddDataPoint.Value2, Mode=OneWayToSource,
+                                ValidatesOnDataErrors=False, ValidatesOnExceptions=False, ValidatesOnNotifyDataErrors=False}"
+                             />
+
+                </Grid>
+                <Button RenderTransformOrigin="0.5 0.5" 
+                        Background="DarkSeaGreen"
+                        BorderBrush="DarkGray"
+                        Margin="0 0 -1 0" Command="{Binding AddOneDataPointCommand}">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="Добавить" FontSize="10" Margin="0 0 0 1"/>
+                        <fa:ImageAwesome Icon="Solid_ArrowDown" Height="9" Margin="0.5 0 0 0"/>
+                    </StackPanel>
+                    <Button.LayoutTransform>
+                        <RotateTransform Angle="-90"/>
+                    </Button.LayoutTransform>
+                    
+                </Button>
 
                 <ListBox ItemsSource="{Binding GraphPoints}"
                      Padding="-1.5 -3 -3 -3"
@@ -100,29 +128,6 @@
                           HorizontalAlignment="Stretch"
                           ShowsPreview="True"/>
 
-
-            <!--<GroupBox Grid.Column="0" Header="Входные данные" Grid.ColumnSpan="2">
-                <DataGrid ItemsSource="{Binding MainGraphPoints}" 
-                          AutoGenerateColumns="False">
-                    <DataGrid.Columns>
-                        <DataGridTextColumn Header="N" Width="0.5*"
-                                            Binding="{Binding Key}"/>
-                        <DataGridTextColumn Header="O(N)" Width="*"
-                                            Binding="{Binding Value}"/>
-                    </DataGrid.Columns>
-                </DataGrid>
-            </GroupBox>
-            <GroupBox Grid.Column="2" Header="Результат">
-                <DataGrid ItemsSource="{Binding MainGraphComputedPoints}"
-                          AutoGenerateColumns="False" Background="Beige">
-                    <DataGrid.Columns>
-                        <DataGridTextColumn Header="a*Rn" Width="0.5*"
-                                            Binding="{Binding Key}"/>
-                        <DataGridTextColumn Header="a*Rn(N)" Width="*"
-                                            Binding="{Binding Value, StringFormat=F2}"/>
-                    </DataGrid.Columns>
-                </DataGrid>
-            </GroupBox>-->
             <GroupBox Grid.Row="2" Header="График">
                 <oxy:Plot LegendPosition="LeftTop">
                     <oxy:Plot.Axes>
