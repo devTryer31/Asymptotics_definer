@@ -4,9 +4,13 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Asymptotics_definer"
+        xmlns:sys="clr-namespace:System;assembly=System.Core"
         xmlns:vm="clr-namespace:Asymptotics_definer.ViewModels"
         xmlns:cmd="clr-namespace:Asymptotics_definer.Infrastructure.Commands"
         xmlns:oxy="http://oxyplot.org/wpf"
+        xmlns:fa="http://schemas.fontawesome.com/icons/"
+        xmlns:mods="clr-namespace:Asymptotics_definer.Models"
+        xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
         mc:Ignorable="d"
         Title="Asymptotics definer" Height="450" Width="950">
     <Window.DataContext>
@@ -39,42 +43,104 @@
             </StatusBarItem>
         </StatusBar>
 
-        <Grid>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="22"/>
-                <ColumnDefinition Width="128"/>
-                <ColumnDefinition Width="150" MinWidth="120"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
+        <Grid
+            Margin="3 0">
+            <Grid.RowDefinitions>
+                <RowDefinition MinHeight="62" MaxHeight="62" Height="62"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition/>
+            </Grid.RowDefinitions>
 
-            <GridSplitter Grid.Column="1" Width="3px"
-                          HorizontalAlignment="Left" Margin="125,0,0,0"/>
-            <GridSplitter Grid.Column="2" Width="3px"
-                          HorizontalAlignment="Left" Margin="147,0,0,0"/>
+            <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="5 2">
+                <UniformGrid VerticalAlignment="Stretch" Rows="3" Columns="1">
+                    <Border BorderThickness="0 0 0 1" BorderBrush="DarkGray" Margin="0 0 0 -0.3">
+                        <TextBlock Text="N" FontSize="15"/>
+                    </Border>
+                    <Border BorderThickness="0 0 0 1" BorderBrush="DarkGray" Padding="0 0 0 1" Margin="0 0 0 0.3">
+                        <TextBlock Text="O(N)" FontSize="15"/>
+                    </Border>
+                    <Border BorderThickness="0 0 0 1" BorderBrush="DarkGray" Padding="0 0 0 1" Margin="0 0 0 0.1">
+                        <TextBlock Text="Rn(N)" FontSize="15" />
+                    </Border>
+                </UniformGrid>
 
-            <GroupBox Grid.Column="0" Header="Входные данные" Grid.ColumnSpan="2">
-                <DataGrid ItemsSource="{Binding MainGraphPoints}" 
-                          AutoGenerateColumns="False">
-                    <DataGrid.Columns>
-                        <DataGridTextColumn Header="N" Width="0.5*"
-                                            Binding="{Binding Key}"/>
-                        <DataGridTextColumn Header="O(N)" Width="*"
-                                            Binding="{Binding Value}"/>
-                    </DataGrid.Columns>
-                </DataGrid>
-            </GroupBox>
-            <GroupBox Grid.Column="2" Header="Результат">
-                <DataGrid ItemsSource="{Binding MainGraphComputedPoints}"
-                          AutoGenerateColumns="False">
-                    <DataGrid.Columns>
-                        <DataGridTextColumn Header="a*Rn" Width="0.5*"
-                                            Binding="{Binding Key}"/>
-                        <DataGridTextColumn Header="a*Rn(N)" Width="*"
-                                            Binding="{Binding Value, StringFormat=F2}"/>
-                    </DataGrid.Columns>
-                </DataGrid>
-            </GroupBox>
-            <GroupBox Grid.Column="3" Header="График">
+                <Grid Width="44">
+                    <Grid.RowDefinitions>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                    </Grid.RowDefinitions>
+
+                    <xctk:WatermarkTextBox Grid.Row="0" BorderThickness="1 1 0 1" Watermark="Ni" FontSize="14"
+                             Padding="0 0 0 1" 
+                             Text="{Binding ToAddDataPoint.Key, Mode=OneWayToSource, Converter={StaticResource EmptyStringToIntConverter}, UpdateSourceTrigger=PropertyChanged}"/>
+
+                    <xctk:WatermarkTextBox Grid.Row="1" BorderThickness="1 0 0 1" Watermark="O(Ni)" FontSize="14"
+                             Padding="0 0 0 1" 
+                             Text="{Binding ToAddDataPoint.Value1, Mode=OneWayToSource, Converter={StaticResource EmptyStringToIntConverter}, UpdateSourceTrigger=PropertyChanged}"/>
+                    
+                    <Border Grid.Row="2" BorderThickness="1 0 0 1" BorderBrush="DarkGray">
+                        <TextBlock Text="Rn(Ni)" FontSize="14"/>
+                    </Border>
+
+                </Grid>
+                <Button RenderTransformOrigin="0.5 0.5" 
+                        Background="DarkSeaGreen"
+                        BorderBrush="DarkGray"
+                        Margin="0 0 -1 0" Command="{Binding AddOneDataPointCommand}"
+                        x:Name="toAddButton">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="Добавить" FontSize="9.9" Margin="0 0 0 1" FontWeight="DemiBold" FontStretch="UltraCondensed"/>
+                        <fa:ImageAwesome Icon="Solid_ArrowDown" Height="9" Margin="0.5 0 0 0" Opacity="0.5"/>
+                        <!--<fa:ImageAwesome.Style>
+                            <Style TargetType="{x:Type fa:ImageAwesome}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding ElementName=toAddButton, Path=IsEnabled}" Value="True">
+                                        <Setter Property="Opacity" Value="1"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </fa:ImageAwesome.Style>-->
+
+                    </StackPanel>
+                    <Button.LayoutTransform>
+                        <RotateTransform Angle="-90"/>
+                    </Button.LayoutTransform>
+                    
+                </Button>
+
+                <ListBox ItemsSource="{Binding GraphPoints}"
+                     Padding="-1.5 -3 -3 -3"
+                     VerticalAlignment="Stretch"
+                         ScrollViewer.VerticalScrollBarVisibility="Disabled">
+
+                    <ListBox.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Orientation="Horizontal"/>
+                        </ItemsPanelTemplate>
+                    </ListBox.ItemsPanel>
+                    <ListBox.ItemTemplate>
+                        <DataTemplate DataType="mods:DataPoint">
+                            <Grid Margin="-5.5 0" VerticalAlignment="Stretch">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition/>
+                                    <RowDefinition/>
+                                    <RowDefinition/>
+                                </Grid.RowDefinitions>
+                                <TextBox Margin="0 -1" Grid.Row="0" Text="{Binding Key}" FontSize="15"/>
+                                <TextBox Margin="0 -1" Grid.Row="1" Text="{Binding Value1}" FontSize="15"/>
+                                <TextBox Margin="0 -1" Grid.Row="2" Text="{Binding Value2}" FontSize="15"/>
+                            </Grid>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </StackPanel>
+
+            <GridSplitter Grid.Row="1" Height="5px"
+                          HorizontalAlignment="Stretch"
+                          ShowsPreview="True"/>
+
+            <GroupBox Grid.Row="2" Header="График">
                 <oxy:Plot LegendPosition="LeftTop">
                     <oxy:Plot.Axes>
                         <oxy:LinearAxis Position="Left"
@@ -84,19 +150,21 @@
                                     MajorGridlineStyle="Automatic"
                                     MajorGridlineColor="LightGray"/>
                     </oxy:Plot.Axes>
-                    
-                    <oxy:LineSeries ItemsSource="{Binding MainGraphPoints}"
+
+                    <oxy:LineSeries ItemsSource="{Binding GraphPoints}"
                                     DataFieldX="Key"
-                                    DataFieldY="Value"
+                                    DataFieldY="Value1"
                                     Color="Aqua"
                                     Title="O(N)"/>
-                    <oxy:LineSeries ItemsSource="{Binding MainGraphComputedPoints}"
+
+                    <oxy:LineSeries ItemsSource="{Binding GraphPoints, UpdateSourceTrigger=PropertyChanged}"
                                     DataFieldX="Key"
-                                    DataFieldY="Value"
+                                    DataFieldY="Value2"
                                     Color="BlueViolet"
-                                    Title="{Binding ResultPlotTitle}"/>
-                    
-                    
+                                    Title="{Binding ResultPlotTitle}"
+                                    />
+
+
                 </oxy:Plot>
             </GroupBox>
         </Grid>

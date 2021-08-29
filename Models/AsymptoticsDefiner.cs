@@ -4,7 +4,8 @@ using System.Collections.Generic;
 using static System.Math;
 
 namespace Asymptotics_definer.Models {
-	static class AsymptoticsDefiner {
+	
+	internal static class AsymptoticsDefiner {
 
 		public struct TFunc {
 			public Func<double, double> Exec;

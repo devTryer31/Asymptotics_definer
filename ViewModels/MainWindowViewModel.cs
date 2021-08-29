@@ -2,6 +2,7 @@
 using Asymptotics_definer.Models;
 using Asymptotics_definer.ViewModels.Base;
 using Microsoft.Win32;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
@@ -24,24 +25,26 @@ namespace Asymptotics_definer.ViewModels {
 
 		#endregion
 
-		#region MainGraphPoints : ObservableCollection<DataPoint<int, double>>
+		private DataPoint<uint, uint, uint> _toAddDataPoint = new();
 
-		private ObservableCollection<DataPoint<uint, double>> _MainGraphPoints;
-
-		public ObservableCollection<DataPoint<uint, double>> MainGraphPoints {
-			get => _MainGraphPoints;
-			set => Set(ref _MainGraphPoints, value);
+		public DataPoint<uint, uint, uint> ToAddDataPoint {
+			get => _toAddDataPoint;
+			set => Set(ref _toAddDataPoint, value);
 		}
 
-		#endregion
 
-		#region MainGraphComputedPoints : ObservableCollection<DataPoint<int, double>>
+		#region GraphPoints : ObservableCollection<DataPoint<uint, uint, uint>>
 
-		private ObservableCollection<DataPoint<uint, double>> _MainGraphComputedPoints;
+		private ObservableCollection<DataPoint<uint, uint, uint>> _GraphPoints =
+			App.IsDesignMode ? new() {
+				new DataPoint<uint, uint, uint>(2, 2, 2),
+				new DataPoint<uint, uint, uint>(315, 4, 6),
+				new DataPoint<uint, uint, uint>(1000, 10, 10)
+			} : new();
 
-		public ObservableCollection<DataPoint<uint, double>> MainGraphComputedPoints {
-			get => _MainGraphComputedPoints;
-			set => Set(ref _MainGraphComputedPoints, value);
+		public ObservableCollection<DataPoint<uint, uint, uint>> GraphPoints {
+			get => _GraphPoints;
+			set => Set(ref _GraphPoints, value);
 		}
 
 		#endregion
@@ -67,7 +70,7 @@ namespace Asymptotics_definer.ViewModels {
 		private bool CanOpenFileCommandExecute(object param) => true; //TODO: When computing => false. Async method require.
 
 		private void OnOpenFileCommandExecuted(object patam) {
-			OpenFileDialog openFileDialog = new OpenFileDialog() {
+			OpenFileDialog openFileDialog = new() {
 				Filter = "Файлы CSV|*.csv",
 				Title = "Выберите файл для импорта."
 			};
@@ -78,20 +81,19 @@ namespace Asymptotics_definer.ViewModels {
 				using var sr = new StreamReader(ImportedFile.FullName);
 				var line = sr.ReadLine().Split(';', ',', ' ');
 				if (line.Length > 2) {
-					var line2 = sr.ReadLine().Split(';', ',', ' ').Select(double.Parse).ToList();
-					MainGraphPoints = new ObservableCollection<DataPoint<uint, double>>(
-						line.Select((x, i) => new DataPoint<uint, double>(uint.Parse(x), line2[i]))
+					var line2 = sr.ReadLine().Split(';', ',', ' ').Select(uint.Parse).ToList();
+					GraphPoints = new ObservableCollection<DataPoint<uint, uint, uint>>(
+						line.Select((x, i) => new DataPoint<uint, uint, uint>(uint.Parse(x), line2[i], default(uint)))
 						);
-					return;
 				}
 				else {
-					List<DataPoint<uint, double>> pointsList = new List<DataPoint<uint, double>>();
+					var pointsList = new List<DataPoint<uint, uint, uint>>();
 					while (!sr.EndOfStream) {
-						pointsList.Add(new DataPoint<uint, double>(uint.Parse(line[0]), double.Parse(line[1])));
+						pointsList.Add(new DataPoint<uint, uint, uint>(uint.Parse(line[0]), uint.Parse(line[1]), default(uint)));
 						line = sr.ReadLine().Split(';', ',', ' ');
 					}
-					pointsList.Add(new DataPoint<uint, double>(uint.Parse(line[0]), double.Parse(line[1])));
-					MainGraphPoints = new ObservableCollection<DataPoint<uint, double>>(
+					pointsList.Add(new DataPoint<uint, uint, uint>(uint.Parse(line[0]), uint.Parse(line[1]), default(uint)));
+					GraphPoints = new ObservableCollection<DataPoint<uint, uint, uint>>(
 						pointsList);
 				}
 			}
@@ -103,19 +105,24 @@ namespace Asymptotics_definer.ViewModels {
 
 		public ICommand ComputeCommand { get; }
 
-		private bool CanComputeCommandExecute(object param) => MainGraphPoints != null && MainGraphPoints.Count != 0;
+		private bool CanComputeCommandExecute(object param) => GraphPoints != null && GraphPoints.Count != 0;
 
-		private void OnComputeCommandExecuted(object param) {
-			var res = AsymptoticsDefiner.Evaluate(
+		private void OnComputeCommandExecuted(object param = null) {
+			var (FuncItem, a) = AsymptoticsDefiner.Evaluate(
 				new Dictionary<int, int>(
-					MainGraphPoints.Select(x => new KeyValuePair<int, int>((int)x.Key, (int)x.Value )))
+					GraphPoints.Select(x => new KeyValuePair<int, int>((int)x.Key, (int)x.Value1)))
 				);
-			var lst = new List<DataPoint<uint, double>>(MainGraphPoints.Count);
-			foreach (var p in MainGraphPoints) {
-				lst.Add(new DataPoint<uint, double>(p.Key, res.a * res.FuncItem.Exec(p.Key)));
-			}
-			MainGraphComputedPoints = new ObservableCollection<DataPoint<uint, double>>(lst);
-			ResultPlotTitle = "Rn(N)=" + res.a.ToString("F4") + res.FuncItem.Str;
+			foreach (var p in GraphPoints)
+				p.Value2 = (uint)Math.Round(a * FuncItem.Exec(p.Key));
+			// ERROR: It does't work. Why? - + +. Bad practice.
+			// - OnPropertyChanged(nameof(GraphPoints)); 
+			// + GraphPoints = new ObservableCollection<DataPoint<uint, uint, uint>>( GraphPoints);
+			// + //
+			var tmp = GraphPoints;
+			GraphPoints = null;
+			GraphPoints = tmp;
+
+			ResultPlotTitle = "Rn(N)=" + a.ToString("F4") + FuncItem.Str;
 		}
 
 		#endregion
@@ -127,8 +134,25 @@ namespace Asymptotics_definer.ViewModels {
 		private bool CanOpenGoogleFileCommandExecute(object param) => true;
 
 		private void OnOpenGoogleFileCommandExecuted(object param) {
-			const string url = @"https://drive.google.com/file/d/1Y64sHZNHi26ovRIBC1eR7SWhY_bYHFnC/view?usp=sharing";
+			const string url = @"https://docs.google.com/document/d/1Y64sHZNHi26ovRIBC1eR7SWhY_bYHFnC/edit?usp=sharing&ouid=101500186422908909807&rtpof=true&sd=true";
 			Process.Start(new ProcessStartInfo("cmd", $"/c start {url}") { CreateNoWindow = true });
+		}
+
+		#endregion
+
+		#region AddOneDataPointCommand
+		//TODO: Fix this command.
+		public ICommand AddOneDataPointCommand { get; }
+
+		private bool CanAddOneDataPointCommandExecute(object param)
+			=> ToAddDataPoint != null && !GraphPoints.Any(p => p.Key == ToAddDataPoint.Key) && ToAddDataPoint.Key != 0 && ToAddDataPoint.Value1 != 0;
+
+		private void OnAddOneDataPointCommandExecuted(object param) {
+			GraphPoints.Add(new DataPoint<uint, uint, uint>(ToAddDataPoint));
+			GraphPoints = new ObservableCollection<DataPoint<uint, uint, uint>>(
+				GraphPoints.OrderBy(p => p.Key)
+				);
+			OnComputeCommandExecuted();
 		}
 
 		#endregion
@@ -145,6 +169,8 @@ namespace Asymptotics_definer.ViewModels {
 			ComputeCommand = new LambdaCommand(OnComputeCommandExecuted, CanComputeCommandExecute);
 
 			OpenGoogleFileCommand = new LambdaCommand(OnOpenGoogleFileCommandExecuted, CanOpenGoogleFileCommandExecute);
+
+			AddOneDataPointCommand = new LambdaCommand(OnAddOneDataPointCommandExecuted, CanAddOneDataPointCommandExecute);
 
 			#endregion
 
