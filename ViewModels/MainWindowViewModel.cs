@@ -36,11 +36,11 @@ namespace Asymptotics_definer.ViewModels {
 		#region GraphPoints : ObservableCollection<DataPoint<uint, uint, uint>>
 
 		private ObservableCollection<DataPoint<uint, uint, uint>> _GraphPoints =
-			new() {
-				//new DataPoint<uint, uint, uint>(2,30,4000),
-				//new DataPoint<uint, uint, uint>(315,4,542),
-				//new DataPoint<uint, uint, uint>(1000,2,3)
-			};
+			App.IsDesignMode ? new() {
+				new DataPoint<uint, uint, uint>(2, 2, 2),
+				new DataPoint<uint, uint, uint>(315, 4, 6),
+				new DataPoint<uint, uint, uint>(1000, 10, 10)
+			} : new();
 
 		public ObservableCollection<DataPoint<uint, uint, uint>> GraphPoints {
 			get => _GraphPoints;
@@ -145,14 +145,13 @@ namespace Asymptotics_definer.ViewModels {
 		public ICommand AddOneDataPointCommand { get; }
 
 		private bool CanAddOneDataPointCommandExecute(object param)
-			=> ToAddDataPoint != null && !GraphPoints.Contains(ToAddDataPoint) && ToAddDataPoint.Key != 0 && ToAddDataPoint.Value1 != 0;
+			=> ToAddDataPoint != null && !GraphPoints.Any(p => p.Key == ToAddDataPoint.Key) && ToAddDataPoint.Key != 0 && ToAddDataPoint.Value1 != 0;
 
 		private void OnAddOneDataPointCommandExecuted(object param) {
-			GraphPoints.Add(ToAddDataPoint);
+			GraphPoints.Add(new DataPoint<uint, uint, uint>(ToAddDataPoint));
 			GraphPoints = new ObservableCollection<DataPoint<uint, uint, uint>>(
 				GraphPoints.OrderBy(p => p.Key)
 				);
-			ToAddDataPoint = new();
 			OnComputeCommandExecuted();
 		}
 

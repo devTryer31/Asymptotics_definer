@@ -25,6 +25,13 @@ namespace Asymptotics_definer.Models {
 			Value2 = default;
 		}
 
+		public DataPoint(DataPoint<TKey, TVal1, TVal2> source) {
+			if (source is null) 
+				throw new ArgumentNullException(nameof(source));
+
+			(Key, Value1, Value2) = (source.Key, source.Value1, source.Value2);
+		}
+
 		public bool Equals(DataPoint<TKey, TVal1, TVal2> other)
 			=> other.Key.Equals(Key) && other.Value1.Equals(Value1) && other.Value2.Equals(Value2);
 

@@ -78,20 +78,30 @@
                     <xctk:WatermarkTextBox Grid.Row="1" BorderThickness="1 0 0 1" Watermark="O(Ni)" FontSize="14"
                              Padding="0 0 0 1" 
                              Text="{Binding ToAddDataPoint.Value1, Mode=OneWayToSource, Converter={StaticResource EmptyStringToIntConverter}, UpdateSourceTrigger=PropertyChanged}"/>
-
-                    <xctk:WatermarkTextBox x:Name="tb1" Grid.Row="2" BorderThickness="1 0 0 1" Watermark="Rn(Ni)" FontSize="14"
-                             Padding="0 0 0 1" 
-                             Text="{Binding ToAddDataPoint.Value2, Mode=OneWayToSource, Converter={StaticResource EmptyStringToIntConverter}, UpdateSourceTrigger=PropertyChanged}"
-                             />
+                    
+                    <Border Grid.Row="2" BorderThickness="1 0 0 1" BorderBrush="DarkGray">
+                        <TextBlock Text="Rn(Ni)" FontSize="14"/>
+                    </Border>
 
                 </Grid>
                 <Button RenderTransformOrigin="0.5 0.5" 
                         Background="DarkSeaGreen"
                         BorderBrush="DarkGray"
-                        Margin="0 0 -1 0" Command="{Binding AddOneDataPointCommand}">
+                        Margin="0 0 -1 0" Command="{Binding AddOneDataPointCommand}"
+                        x:Name="toAddButton">
                     <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="Добавить" FontSize="10" Margin="0 0 0 1"/>
-                        <fa:ImageAwesome Icon="Solid_ArrowDown" Height="9" Margin="0.5 0 0 0"/>
+                        <TextBlock Text="Добавить" FontSize="9.9" Margin="0 0 0 1" FontWeight="DemiBold" FontStretch="UltraCondensed"/>
+                        <fa:ImageAwesome Icon="Solid_ArrowDown" Height="9" Margin="0.5 0 0 0" Opacity="0.5"/>
+                        <!--<fa:ImageAwesome.Style>
+                            <Style TargetType="{x:Type fa:ImageAwesome}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding ElementName=toAddButton, Path=IsEnabled}" Value="True">
+                                        <Setter Property="Opacity" Value="1"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </fa:ImageAwesome.Style>-->
+
                     </StackPanel>
                     <Button.LayoutTransform>
                         <RotateTransform Angle="-90"/>
