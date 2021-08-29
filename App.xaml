@@ -2,9 +2,10 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="clr-namespace:Asymptotics_definer"
+             xmlns:cvt="clr-namespace:Asymptotics_definer.Infrastructure.Converters"
              StartupUri="Views\Windows\MainWindow.xaml">
     <Application.Resources>
-         
+        <cvt:EmptyStringToIntConverter x:Key="EmptyStringToIntConverter"/>
 
     </Application.Resources>
 </Application>

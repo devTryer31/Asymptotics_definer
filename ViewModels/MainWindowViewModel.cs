@@ -25,7 +25,7 @@ namespace Asymptotics_definer.ViewModels {
 
 		#endregion
 
-		private DataPoint<uint, uint, uint> _toAddDataPoint = new DataPoint<uint, uint, uint>();
+		private DataPoint<uint, uint, uint> _toAddDataPoint = new();
 
 		public DataPoint<uint, uint, uint> ToAddDataPoint {
 			get => _toAddDataPoint;
@@ -36,7 +36,7 @@ namespace Asymptotics_definer.ViewModels {
 		#region GraphPoints : ObservableCollection<DataPoint<uint, uint, uint>>
 
 		private ObservableCollection<DataPoint<uint, uint, uint>> _GraphPoints =
-			new ObservableCollection<DataPoint<uint, uint, uint>>() {
+			new() {
 				//new DataPoint<uint, uint, uint>(2,30,4000),
 				//new DataPoint<uint, uint, uint>(315,4,542),
 				//new DataPoint<uint, uint, uint>(1000,2,3)
@@ -70,7 +70,7 @@ namespace Asymptotics_definer.ViewModels {
 		private bool CanOpenFileCommandExecute(object param) => true; //TODO: When computing => false. Async method require.
 
 		private void OnOpenFileCommandExecuted(object patam) {
-			OpenFileDialog openFileDialog = new OpenFileDialog() {
+			OpenFileDialog openFileDialog = new() {
 				Filter = "Файлы CSV|*.csv",
 				Title = "Выберите файл для импорта."
 			};
@@ -105,15 +105,15 @@ namespace Asymptotics_definer.ViewModels {
 
 		public ICommand ComputeCommand { get; }
 
-		private bool CanComputeCommandExecute(object param) => GraphPoints != null && GraphPoints.Count() != 0;
+		private bool CanComputeCommandExecute(object param) => GraphPoints != null && GraphPoints.Count != 0;
 
 		private void OnComputeCommandExecuted(object param = null) {
-			var res = AsymptoticsDefiner.Evaluate(
+			var (FuncItem, a) = AsymptoticsDefiner.Evaluate(
 				new Dictionary<int, int>(
 					GraphPoints.Select(x => new KeyValuePair<int, int>((int)x.Key, (int)x.Value1)))
 				);
 			foreach (var p in GraphPoints)
-				p.Value2 = (uint)Math.Round(res.a * res.FuncItem.Exec(p.Key));
+				p.Value2 = (uint)Math.Round(a * FuncItem.Exec(p.Key));
 			// ERROR: It does't work. Why? - + +. Bad practice.
 			// - OnPropertyChanged(nameof(GraphPoints)); 
 			// + GraphPoints = new ObservableCollection<DataPoint<uint, uint, uint>>( GraphPoints);
@@ -122,7 +122,7 @@ namespace Asymptotics_definer.ViewModels {
 			GraphPoints = null;
 			GraphPoints = tmp;
 
-			ResultPlotTitle = "Rn(N)=" + res.a.ToString("F4") + res.FuncItem.Str;
+			ResultPlotTitle = "Rn(N)=" + a.ToString("F4") + FuncItem.Str;
 		}
 
 		#endregion
@@ -134,14 +134,14 @@ namespace Asymptotics_definer.ViewModels {
 		private bool CanOpenGoogleFileCommandExecute(object param) => true;
 
 		private void OnOpenGoogleFileCommandExecuted(object param) {
-			const string url = @"https://drive.google.com/file/d/1Y64sHZNHi26ovRIBC1eR7SWhY_bYHFnC/viewusp=sharing";
+			const string url = @"https://docs.google.com/document/d/1Y64sHZNHi26ovRIBC1eR7SWhY_bYHFnC/edit?usp=sharing&ouid=101500186422908909807&rtpof=true&sd=true";
 			Process.Start(new ProcessStartInfo("cmd", $"/c start {url}") { CreateNoWindow = true });
 		}
 
 		#endregion
 
 		#region AddOneDataPointCommand
-
+		//TODO: Fix this command.
 		public ICommand AddOneDataPointCommand { get; }
 
 		private bool CanAddOneDataPointCommandExecute(object param)
@@ -149,7 +149,10 @@ namespace Asymptotics_definer.ViewModels {
 
 		private void OnAddOneDataPointCommandExecuted(object param) {
 			GraphPoints.Add(ToAddDataPoint);
-			//TODO: Add sorting.
+			GraphPoints = new ObservableCollection<DataPoint<uint, uint, uint>>(
+				GraphPoints.OrderBy(p => p.Key)
+				);
+			ToAddDataPoint = new();
 			OnComputeCommandExecuted();
 		}
 

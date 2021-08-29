@@ -72,14 +72,16 @@
                     </Grid.RowDefinitions>
 
                     <xctk:WatermarkTextBox Grid.Row="0" BorderThickness="1 1 0 1" Watermark="Ni" FontSize="14"
-                             Padding="0 0 0 1" Text="{Binding ToAddDataPoint.Key, Mode=OneWayToSource}"/>
+                             Padding="0 0 0 1" 
+                             Text="{Binding ToAddDataPoint.Key, Mode=OneWayToSource, Converter={StaticResource EmptyStringToIntConverter}, UpdateSourceTrigger=PropertyChanged}"/>
 
                     <xctk:WatermarkTextBox Grid.Row="1" BorderThickness="1 0 0 1" Watermark="O(Ni)" FontSize="14"
-                             Padding="0 0 0 1" Text="{Binding ToAddDataPoint.Value1, Mode=OneWayToSource}"/>
+                             Padding="0 0 0 1" 
+                             Text="{Binding ToAddDataPoint.Value1, Mode=OneWayToSource, Converter={StaticResource EmptyStringToIntConverter}, UpdateSourceTrigger=PropertyChanged}"/>
 
                     <xctk:WatermarkTextBox x:Name="tb1" Grid.Row="2" BorderThickness="1 0 0 1" Watermark="Rn(Ni)" FontSize="14"
-                             Padding="0 0 0 1" Text="{Binding ToAddDataPoint.Value2, Mode=OneWayToSource,
-                                ValidatesOnDataErrors=False, ValidatesOnExceptions=False, ValidatesOnNotifyDataErrors=False}"
+                             Padding="0 0 0 1" 
+                             Text="{Binding ToAddDataPoint.Value2, Mode=OneWayToSource, Converter={StaticResource EmptyStringToIntConverter}, UpdateSourceTrigger=PropertyChanged}"
                              />
 
                 </Grid>
